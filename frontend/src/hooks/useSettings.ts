@@ -4,11 +4,11 @@ import type { DonorRequest, LocationRequest, ProductTypeRequest } from '@/types/
 import { useAuthStore } from '@/store/auth.store'
 
 // ---- Donors Hooks ----
-export function useDonors(page: number, pageSize: number = 10) {
+export function useDonors(page: number, pageSize: number = 10, name: string = '') {
     const user = useAuthStore((s) => s.user)
     return useQuery({
-        queryKey: ['settings', 'donors', page, pageSize],
-        queryFn: () => settingsApi.getDonors(page, pageSize),
+        queryKey: ['settings', 'donors', page, pageSize, name],
+        queryFn: () => settingsApi.getDonors(page, pageSize, name),
         enabled: !!user?.id,
     })
 }

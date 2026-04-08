@@ -7,8 +7,8 @@ import type {
 
 export const settingsApi = {
     // Donors
-    getDonors: async (page = 1, pageSize = 10): Promise<PaginatedDonors> => 
-        (await api.get(`/donors?page=${page}&page_size=${pageSize}`)).data,
+    getDonors: async (page = 1, pageSize = 10, name = ''): Promise<PaginatedDonors> => 
+        (await api.get(`/donors?page=${page}&page_size=${pageSize}&name=${name}`)).data,
     createDonor: async (data: DonorRequest): Promise<Donor> => 
         (await api.post('/donors', data)).data,
     updateDonor: async (id: string, data: DonorRequest): Promise<Donor> => 

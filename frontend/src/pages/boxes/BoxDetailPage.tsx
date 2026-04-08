@@ -16,6 +16,7 @@ import { boxApi } from '@/api/box.api'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import DeleteConfirmModal from './components/DeleteConfirmModal'
+import ProductModal from '../products/components/ProductModal'
 
 export default function BoxDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -23,6 +24,8 @@ export default function BoxDetailPage() {
     const { data: detailData, isLoading, isError } = useBox(id!)
     const { mutate: deleteBox, isPending: isDeleting } = useDeleteBox()
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false)
+    const [productModalMode, setProductModalMode] = useState<'new' | 'existing'>('new')
 
     const [searchTerm, setSearchTerm] = useState('')
 
@@ -197,7 +200,20 @@ export default function BoxDetailPage() {
                             />
                         </div>
                         <button
-                            onClick={() => toast.info('Módulo de productos próximamente disponible')}
+                            onClick={() => {
+                                setProductModalMode('existing')
+                                setIsProductModalOpen(true)
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-400 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+                        >
+                            <Search size={16} />
+                            <span>Agregar Existente</span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                setProductModalMode('new')
+                                setIsProductModalOpen(true)
+                            }}
                             className="btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-xl shrink-0"
                         >
                             <Plus size={16} />
@@ -222,9 +238,16 @@ export default function BoxDetailPage() {
                                     {filteredProducts.map((p, i) => (
                                         <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
                                             <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-slate-900 dark:text-white capitalize">{p.product_type_name}</span>
-                                                    <span className="text-[10px] font-mono text-slate-400">{p.product_id.substring(0, 8)}</span>
+                                                <div 
+                                                    onClick={() => navigate(`/products/${p.product_id}`)}
+                                                    className="flex flex-col cursor-pointer group/item"
+                                                >
+                                                    <span className="font-bold text-slate-900 dark:text-white capitalize group-hover/item:text-accent transition-colors">
+                                                        {p.product_type_name}
+                                                    </span>
+                                                    <span className="text-[10px] font-mono text-slate-400">
+                                                        {p.product_id.substring(0, 8)}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{p.donor_name}</td>
@@ -264,6 +287,12 @@ export default function BoxDetailPage() {
                 isPending={isDeleting}
                 title="¿Eliminar esta caja?"
                 description={`Estás a punto de eliminar "${box.name}". Esta acción no se puede deshacer.`}
+            />
+            <ProductModal
+                isOpen={isProductModalOpen}
+                onClose={() => setIsProductModalOpen(false)}
+                initialBoxId={box.id}
+                initialMode={productModalMode}
             />
         </div>
     )

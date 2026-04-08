@@ -7,6 +7,8 @@ import DashboardPage from '@/pages/dashboard/DashboardPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 import BoxesPage from '@/pages/boxes/BoxesPage'
 import BoxDetailPage from '@/pages/boxes/BoxDetailPage'
+import ProductsPage from '@/pages/products/ProductsPage'
+import ProductDetailPage from '@/pages/products/ProductDetailPage'
 
 
 function ProtectedRoute() {
@@ -47,6 +49,8 @@ export const router = createBrowserRouter([
                     { path: '/settings', element: <SettingsPage /> },
                     { path: '/boxes', element: <BoxesPage /> },
                     { path: '/boxes/:id', element: <BoxDetailPage /> },
+                    { path: '/products', element: <ProductsPage /> },
+                    { path: '/products/:id', element: <ProductDetailPage /> },
                 ],
             },
         ],
