@@ -4,6 +4,7 @@ import AuthLayout from '@/layouts/AuthLayout'
 import AppLayout from '@/layouts/AppLayout'
 import LoginPage from '@/pages/auth/LoginPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
+import SettingsPage from '@/pages/settings/SettingsPage'
 
 
 function ProtectedRoute() {
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
                 element: <AppLayout />,
                 children: [
                     { path: '/dashboard', element: <DashboardPage /> },
+                    { path: '/settings', element: <SettingsPage /> },
                 ],
             },
         ],
