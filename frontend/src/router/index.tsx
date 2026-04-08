@@ -5,6 +5,8 @@ import AppLayout from '@/layouts/AppLayout'
 import LoginPage from '@/pages/auth/LoginPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
+import BoxesPage from '@/pages/boxes/BoxesPage'
+import BoxDetailPage from '@/pages/boxes/BoxDetailPage'
 
 
 function ProtectedRoute() {
@@ -43,6 +45,8 @@ export const router = createBrowserRouter([
                 children: [
                     { path: '/dashboard', element: <DashboardPage /> },
                     { path: '/settings', element: <SettingsPage /> },
+                    { path: '/boxes', element: <BoxesPage /> },
+                    { path: '/boxes/:id', element: <BoxDetailPage /> },
                 ],
             },
         ],
