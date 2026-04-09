@@ -15,4 +15,10 @@ export const queryKeys = {
             [...queryKeys.products.all, 'list', { page, pageSize, ...filters }] as const,
         detail: (id: string) => [...queryKeys.products.all, 'detail', id] as const,
     },
+    transactions: {
+        all: ['transactions'] as const,
+        list: (page: number, pageSize: number, filters: any) =>
+            [...queryKeys.transactions.all, 'list', { page, pageSize, ...filters }] as const,
+        detail: (id: string) => [...queryKeys.transactions.all, 'detail', id] as const,
+    },
 }
