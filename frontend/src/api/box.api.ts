@@ -8,13 +8,14 @@ import type {
 } from '@/types/box.types'
 
 export const boxApi = {
-  getBoxes: async (page = 1, pageSize = 10, name = '', location = ''): Promise<PaginatedResponse<BoxResponse>> => {
+  getBoxes: async (page = 1, pageSize = 10, name = '', location = '', productId = ''): Promise<PaginatedResponse<BoxResponse>> => {
     const res = await api.get('/boxes', {
-      params: { 
-        page, 
+      params: {
+        page,
         page_size: pageSize,
         name,
-        location
+        location,
+        ...(productId ? { productId } : {}),
       }
     })
     return res.data

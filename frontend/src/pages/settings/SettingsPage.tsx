@@ -28,7 +28,7 @@ export default function SettingsPage() {
                         Configuración
                     </h2>
                     <p className="text-xs text-slate-400 mt-0.5">
-                        Donadores, bodegas y tipos de producto
+                        Donadores, bodegas, tipos de producto y escáner QR
                     </p>
                 </div>
             </div>

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useForm as useHookForm } from 'react-hook-form'
-import { Loader2, X, Box, Tag, Plus, Minus, RotateCcw } from 'lucide-react'
-import { useAddBoxStock, useRemoveBoxStock, useReturnBoxStock, useBoxes } from '@/hooks/useBoxes'
+import { Loader2, X, Box, Tag, Plus, Minus, RotateCcw, Link2 } from 'lucide-react'
+import { useAddBoxStock, useRemoveBoxStock, useReturnBoxStock, useBoxes, useBox } from '@/hooks/useBoxes'
 import { useProducts } from '@/hooks/useProducts'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -20,56 +20,124 @@ interface StockForm {
     quantity: number
 }
 
+// Ids seleccionados para cruzar la información entre buscadores
+interface SelectedState {
+    productId: string
+    productLabel: string
+    boxId: string
+    boxLabel: string
+}
+
 export default function StockMovementModal({ isOpen, onClose, type }: StockMovementModalProps) {
+    const [selected, setSelected] = useState<SelectedState>({
+        productId: '', productLabel: '',
+        boxId: '', boxLabel: '',
+    })
+
+    // ── Buscadores independientes ──
     const [productSearch, setProductSearch] = useState('')
     const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false)
-    const debouncedProductSearch = useDebounce(productSearch, 500)
+    const debouncedProductSearch = useDebounce(productSearch, 400)
 
     const [boxSearch, setBoxSearch] = useState('')
     const [isBoxDropdownOpen, setIsBoxDropdownOpen] = useState(false)
-    const debouncedBoxSearch = useDebounce(boxSearch, 500)
+    const debouncedBoxSearch = useDebounce(boxSearch, 400)
 
+    // ── Form ──
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useHookForm<StockForm>({
-        defaultValues: {
-            quantity: 1
-        }
+        defaultValues: { quantity: 1 }
     })
 
-    const { data: productsData } = useProducts(1, 20, { type: debouncedProductSearch })
-    const { data: boxesData } = useBoxes(1, 20, debouncedBoxSearch)
+    // ── Queries ──
+    // Productos — siempre busca por tipo
+    const { data: productsData } = useProducts(1, 30, { type: debouncedProductSearch })
+    // Cajas — filtra por nombre Y opcionalmente por producto seleccionado
+    const { data: boxesData } = useBoxes(1, 30, debouncedBoxSearch, '', selected.productId)
+    // Detalle de caja seleccionada — para filtrar productos de esa caja
+    const { data: selectedBoxDetail } = useBox(selected.boxId)
+    // Mapeamos el ID del producto seleccionado para saber en qué cajas está
+    // (usamos box_stocks que vive dentro del detalle de la caja, sin endpoint extra)
 
     const addMutation = useAddBoxStock()
     const removeMutation = useRemoveBoxStock()
     const returnMutation = useReturnBoxStock()
-
     const isPending = addMutation.isPending || removeMutation.isPending || returnMutation.isPending
 
+    // Reset al abrir
     useEffect(() => {
         if (isOpen) {
+            setSelected({ productId: '', productLabel: '', boxId: '', boxLabel: '' })
             setProductSearch('')
             setBoxSearch('')
-            reset({
-                quantity: 1,
-                box_id: '',
-                product_id: ''
-            })
+            reset({ quantity: 1, box_id: '', product_id: '' })
         }
     }, [isOpen, reset])
 
-    if (!isOpen) return null
-
-    const handleProductSelect = (id: string, name: string) => {
+    // ── Handlers ──
+    const handleProductSelect = (id: string, label: string) => {
+        setSelected(s => ({ ...s, productId: id, productLabel: label }))
         setValue('product_id', id)
-        setProductSearch(name)
+        setProductSearch(label)
         setIsProductDropdownOpen(false)
     }
 
-    const handleBoxSelect = (id: string, name: string) => {
+    const handleBoxSelect = (id: string, label: string) => {
+        setSelected(s => ({ ...s, boxId: id, boxLabel: label }))
         setValue('box_id', id)
-        setBoxSearch(name)
+        setBoxSearch(label)
         setIsBoxDropdownOpen(false)
     }
 
+    const handleClearProduct = () => {
+        setSelected(s => ({ ...s, productId: '', productLabel: '' }))
+        setValue('product_id', '')
+        setProductSearch('')
+    }
+
+    const handleClearBox = () => {
+        setSelected(s => ({ ...s, boxId: '', boxLabel: '' }))
+        setValue('box_id', '')
+        setBoxSearch('')
+    }
+
+    // ── Listas filtradas cruzadas ──
+
+    // Lista de productos:
+    // - Si hay una CAJA seleccionada → solo muestra los productos que están en esa caja
+    // - Si no hay caja → muestra todos los de la búsqueda normal
+    const filteredProducts = useMemo(() => {
+        if (selected.boxId && selectedBoxDetail?.products) {
+            const boxProductIds = new Set(selectedBoxDetail.products.map(p => p.product_id))
+            const base = productsData?.data ?? []
+            // Si hay texto de búsqueda, filtra sobre los de la caja
+            if (debouncedProductSearch) {
+                return base.filter(p =>
+                    boxProductIds.has(p.id) &&
+                    (p.product_type_name.toLowerCase().includes(debouncedProductSearch.toLowerCase()) ||
+                        p.donor_name?.toLowerCase().includes(debouncedProductSearch.toLowerCase()))
+                )
+            }
+            // Sin búsqueda: convierte los productos de la caja a formato compatible
+            return selectedBoxDetail.products.map(p => ({
+                id: p.product_id,
+                product_type_name: p.product_type_name,
+                donor_name: p.donor_name,
+                size: '',
+                description: '',
+                physical_condition: p.physical_condition,
+            }))
+        }
+        return productsData?.data ?? []
+    }, [selected.boxId, selectedBoxDetail, productsData, debouncedProductSearch])
+
+    // Lista de cajas filtradas — el backend ya filtra por productId si está seleccionado
+    const filteredBoxes = useMemo(() => {
+        return boxesData?.data ?? []
+    }, [boxesData])
+
+    // ── Early return AFTER all hooks (Rules of Hooks) ──
+    if (!isOpen) return null
+    // ── Submit ──
     const onSubmit = async (data: StockForm) => {
         try {
             const payload = {
@@ -123,10 +191,13 @@ export default function StockMovementModal({ isOpen, onClose, type }: StockMovem
     }[type]
 
     const Icon = config.icon
+    const bothSelected = selected.productId && selected.boxId
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+
+                {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-3">
                         <div className={`p-3 rounded-2xl ${config.bg} ${config.color}`}>
@@ -145,72 +216,147 @@ export default function StockMovementModal({ isOpen, onClose, type }: StockMovem
                     </button>
                 </div>
 
+                {/* Hint cruzado */}
+                {(selected.productId || selected.boxId) && !bothSelected && (
+                    <div className="mx-6 mt-4 flex items-center gap-2 px-4 py-2.5 bg-accent/5 border border-accent/20 rounded-xl">
+                        <Link2 size={14} className="text-accent shrink-0" />
+                        <p className="text-xs font-bold text-accent">
+                            {selected.boxId
+                                ? 'Los productos disponibles se filtraron a los de esa caja'
+                                : 'Selecciona primero la caja para filtrar sus productos, o elige producto y luego caja'}
+                        </p>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
                     <div className="space-y-4">
-                        {/* Product Search */}
+
+                        {/* ── PRODUCTO ─────────────────────────────── */}
                         <div className="space-y-2 relative">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                                <Tag size={14} /> Producto
+                                <Tag size={14} />
+                                Producto
+                                {selected.boxId && (
+                                    <span className="ml-auto text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full">
+                                        Filtrando por caja
+                                    </span>
+                                )}
                             </label>
-                            <input
-                                type="text"
-                                value={productSearch}
-                                onChange={(e) => {
-                                    setProductSearch(e.target.value)
-                                    setIsProductDropdownOpen(true)
-                                    if (!e.target.value) setValue('product_id', '')
-                                }}
-                                onFocus={() => setIsProductDropdownOpen(true)}
-                                onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 200)}
-                                placeholder="Buscar producto por categoría..."
-                                className="w-full h-12 px-4 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
-                                autoComplete="off"
-                            />
-                            {isProductDropdownOpen && productSearch && productsData?.data && (
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={productSearch}
+                                    onChange={(e) => {
+                                        setProductSearch(e.target.value)
+                                        setIsProductDropdownOpen(true)
+                                        if (!e.target.value) handleClearProduct()
+                                    }}
+                                    onFocus={() => setIsProductDropdownOpen(true)}
+                                    onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 200)}
+                                    placeholder={
+                                        selected.boxId
+                                            ? 'Buscar entre los productos de esta caja...'
+                                            : 'Buscar producto por categoría...'
+                                    }
+                                    className="w-full h-12 px-4 pr-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
+                                    autoComplete="off"
+                                />
+                                {selected.productId && (
+                                    <button
+                                        type="button"
+                                        onClick={handleClearProduct}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors"
+                                        title="Limpiar selección"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Dropdown productos */}
+                            {isProductDropdownOpen && (productSearch || selected.boxId) && filteredProducts.length > 0 && (
                                 <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-56 overflow-y-auto">
-                                    {productsData.data.map((p) => (
+                                    {filteredProducts.map((p) => (
                                         <button
                                             key={p.id}
                                             type="button"
-                                            onClick={() => handleProductSelect(p.id, `${p.product_type_name} - ${p.donor_name} (Talla: ${p.size || 'Unica'})`)}
+                                            onClick={() => handleProductSelect(
+                                                p.id,
+                                                `${p.product_type_name} - ${p.donor_name} (${p.size || 'Talla única'})`
+                                            )}
                                             className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0"
                                         >
                                             <p className="font-bold text-slate-900 dark:text-white capitalize">
                                                 {p.product_type_name}
                                             </p>
                                             <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
-                                                Donante: {p.donor_name} • Talla: {p.size || 'Unica'} • Descripción: {p.description}
+                                                Donante: {p.donor_name}
+                                                {p.size ? ` • Talla: ${p.size}` : ''}
+                                                {p.physical_condition ? ` • ${p.physical_condition}` : ''}
                                             </p>
                                         </button>
                                     ))}
                                 </div>
                             )}
+
+                            {/* Sin resultados */}
+                            {isProductDropdownOpen && productSearch && filteredProducts.length === 0 && (
+                                <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4 text-center">
+                                    <p className="text-sm text-slate-400 font-medium">
+                                        {selected.boxId
+                                            ? 'Esta caja no contiene productos que coincidan'
+                                            : 'No se encontraron productos'}
+                                    </p>
+                                </div>
+                            )}
+
                             <input type="hidden" {...register('product_id', { required: 'El producto es requerido' })} />
-                            {errors.product_id && <p className="text-xs text-red-500 mt-1 font-bold">{errors.product_id.message}</p>}
+                            {errors.product_id && (
+                                <p className="text-xs text-red-500 mt-1 font-bold">{errors.product_id.message}</p>
+                            )}
                         </div>
 
-                        {/* Box Search */}
+                        {/* ── CAJA ─────────────────────────────────── */}
                         <div className="space-y-2 relative">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                                <Box size={14} /> Caja Destino/Origen
+                                <Box size={14} />
+                                Caja Destino / Origen
                             </label>
-                            <input
-                                type="text"
-                                value={boxSearch}
-                                onChange={(e) => {
-                                    setBoxSearch(e.target.value)
-                                    setIsBoxDropdownOpen(true)
-                                    if (!e.target.value) setValue('box_id', '')
-                                }}
-                                onFocus={() => setIsBoxDropdownOpen(true)}
-                                onBlur={() => setTimeout(() => setIsBoxDropdownOpen(false), 200)}
-                                placeholder="Buscar caja por nombre..."
-                                className="w-full h-12 px-4 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
-                                autoComplete="off"
-                            />
-                            {isBoxDropdownOpen && boxSearch && boxesData?.data && (
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={boxSearch}
+                                    onChange={(e) => {
+                                        setBoxSearch(e.target.value)
+                                        setIsBoxDropdownOpen(true)
+                                        if (!e.target.value) handleClearBox()
+                                    }}
+                                    onFocus={() => setIsBoxDropdownOpen(true)}
+                                    onBlur={() => setTimeout(() => setIsBoxDropdownOpen(false), 200)}
+                                    placeholder={
+                                        selected.productId
+                                            ? 'Buscar o ver cajas que contienen este producto...'
+                                            : 'Buscar caja por nombre...'
+                                    }
+                                    className="w-full h-12 px-4 pr-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-accent/20 transition-all font-medium"
+                                    autoComplete="off"
+                                />
+                                {selected.boxId && (
+                                    <button
+                                        type="button"
+                                        onClick={handleClearBox}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors"
+                                        title="Limpiar selección"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Dropdown cajas: muestra si hay texto O si hay producto seleccionado y el campo está en foco */}
+                            {isBoxDropdownOpen && (boxSearch || selected.productId) && filteredBoxes.length > 0 && (
                                 <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-56 overflow-y-auto">
-                                    {boxesData.data.map((b) => (
+                                    {filteredBoxes.map((b) => (
                                         <button
                                             key={b.id}
                                             type="button"
@@ -227,24 +373,42 @@ export default function StockMovementModal({ isOpen, onClose, type }: StockMovem
                                     ))}
                                 </div>
                             )}
+
+                            {isBoxDropdownOpen && (boxSearch || selected.productId) && filteredBoxes.length === 0 && (
+                                <div className="absolute z-20 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4 text-center">
+                                    <p className="text-sm text-slate-400 font-medium">
+                                        {selected.productId
+                                            ? 'Ninguna caja contiene ese producto actualmente'
+                                            : 'No se encontraron cajas'}
+                                    </p>
+                                </div>
+                            )}
+
                             <input type="hidden" {...register('box_id', { required: 'La caja es requerida' })} />
-                            {errors.box_id && <p className="text-xs text-red-500 mt-1 font-bold">{errors.box_id.message}</p>}
+                            {errors.box_id && (
+                                <p className="text-xs text-red-500 mt-1 font-bold">{errors.box_id.message}</p>
+                            )}
                         </div>
 
-                        {/* Quantity */}
+                        {/* ── CANTIDAD ──────────────────────────────── */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Cantidad</label>
                             <input
-                                {...register('quantity', { required: 'La cantidad es requerida', min: { value: 1, message: 'La cantidad mínima es 1' } })}
+                                {...register('quantity', {
+                                    required: 'La cantidad es requerida',
+                                    min: { value: 1, message: 'La cantidad mínima es 1' }
+                                })}
                                 type="number"
                                 min="1"
                                 className="w-full h-12 px-4 rounded-xl border-slate-200 dark:border-slate-700 focus:ring-2 transition-all font-bold text-lg"
                             />
-                            {errors.quantity && <p className="text-xs text-red-500 mt-1 font-bold">{errors.quantity.message}</p>}
+                            {errors.quantity && (
+                                <p className="text-xs text-red-500 mt-1 font-bold">{errors.quantity.message}</p>
+                            )}
                         </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-2">
                         <button
                             type="submit"
                             disabled={isPending}

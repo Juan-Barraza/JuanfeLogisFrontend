@@ -3,10 +3,10 @@ import { boxApi } from '@/api/box.api'
 import { queryKeys } from './query-keys'
 import type { BoxRequest, BoxStockRequest } from '@/types/box.types'
 
-export const useBoxes = (page = 1, pageSize = 10, name = '', location = '') => {
+export const useBoxes = (page = 1, pageSize = 10, name = '', location = '', productId = '') => {
   return useQuery({
-    queryKey: queryKeys.boxes.list(page, pageSize, name, location),
-    queryFn: () => boxApi.getBoxes(page, pageSize, name, location),
+    queryKey: queryKeys.boxes.list(page, pageSize, name, location, productId),
+    queryFn: () => boxApi.getBoxes(page, pageSize, name, location, productId),
   })
 }
 
@@ -59,6 +59,7 @@ export const useAddBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }
@@ -71,6 +72,7 @@ export const useRemoveBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }
@@ -83,6 +85,7 @@ export const useReturnBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }
