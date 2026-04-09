@@ -11,6 +11,7 @@ export interface Product {
     sale_price: number;
     physical_condition: string;
     disposition: ProductDisposition;
+    description: string;
     created_at: string;
     updated_at: string;
 }
@@ -31,6 +32,7 @@ export interface ProductRequest {
     sale_price: number;
     physical_condition: string;
     disposition: ProductDisposition;
+    description: string;
 }
 
 export interface ProductFilters {

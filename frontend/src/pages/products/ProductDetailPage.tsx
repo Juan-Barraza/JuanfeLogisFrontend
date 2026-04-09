@@ -168,6 +168,20 @@ export default function ProductDetailPage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Description Block */}
+                            {product.description && (
+                                <div className="pt-8 border-t border-slate-50 dark:border-slate-800">
+                                    <h4 className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+                                        Detalles Adicionales
+                                    </h4>
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl">
+                                        <p className="text-slate-600 dark:text-slate-300 italic leading-relaxed">
+                                            "{product.description}"
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
