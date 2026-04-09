@@ -10,8 +10,8 @@ export const queryKeys = {
     },
     boxes: {
         all: ['boxes'] as const,
-        list: (page: number, pageSize: number, name: string, location: string) =>
-            [...queryKeys.boxes.all, 'list', { page, pageSize, name, location }] as const,
+        list: (page: number, pageSize: number, name: string, location: string, productId?: string) =>
+            [...queryKeys.boxes.all, 'list', { page, pageSize, name, location, productId }] as const,
         detail: (id: string) => [...queryKeys.boxes.all, 'detail', id] as const,
     },
     products: {

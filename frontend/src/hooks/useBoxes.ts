@@ -3,10 +3,10 @@ import { boxApi } from '@/api/box.api'
 import { queryKeys } from './query-keys'
 import type { BoxRequest, BoxStockRequest } from '@/types/box.types'
 
-export const useBoxes = (page = 1, pageSize = 10, name = '', location = '') => {
+export const useBoxes = (page = 1, pageSize = 10, name = '', location = '', productId = '') => {
   return useQuery({
-    queryKey: queryKeys.boxes.list(page, pageSize, name, location),
-    queryFn: () => boxApi.getBoxes(page, pageSize, name, location),
+    queryKey: queryKeys.boxes.list(page, pageSize, name, location, productId),
+    queryFn: () => boxApi.getBoxes(page, pageSize, name, location, productId),
   })
 }
 
