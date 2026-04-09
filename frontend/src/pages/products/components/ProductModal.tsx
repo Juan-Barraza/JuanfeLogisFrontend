@@ -68,6 +68,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, initialBo
                 sale_price: productToEdit.sale_price,
                 physical_condition: productToEdit.physical_condition,
                 disposition: productToEdit.disposition,
+                description: productToEdit.description,
                 box_id: initialBoxId || '',
                 quantity: 1
             })
@@ -81,7 +82,8 @@ export default function ProductModal({ isOpen, onClose, productToEdit, initialBo
                 box_id: initialBoxId || '',
                 size: '',
                 physical_condition: 'Excelente',
-                disposition: 'Bazar'
+                disposition: 'Bazar',
+                description: ''
             })
         }
     }, [productToEdit, reset, isOpen, initialBoxId, initialMode])
@@ -444,6 +446,17 @@ export default function ProductModal({ isOpen, onClose, productToEdit, initialBo
                                                 />
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {/* Description Section */}
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Descripción Destacada</label>
+                                        <textarea
+                                            {...register('description')}
+                                            rows={3}
+                                            placeholder="Detalles adicionales: Marca, estilo, notas especiales..."
+                                            className="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-accent/20 transition-all text-sm resize-none"
+                                        />
                                     </div>
                                 </>
                             )}

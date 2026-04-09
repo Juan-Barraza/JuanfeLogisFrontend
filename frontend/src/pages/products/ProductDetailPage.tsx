@@ -98,6 +98,13 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                        <span>Volver</span>
+                    </button>
+                    <button
                         onClick={() => setIsEditModalOpen(true)}
                         className="p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
                         title="Editar información"
@@ -168,6 +175,20 @@ export default function ProductDetailPage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Description Block */}
+                            {product.description && (
+                                <div className="pt-8 border-t border-slate-50 dark:border-slate-800">
+                                    <h4 className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+                                        Detalles Adicionales
+                                    </h4>
+                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl">
+                                        <p className="text-slate-600 dark:text-slate-300 italic leading-relaxed">
+                                            "{product.description}"
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

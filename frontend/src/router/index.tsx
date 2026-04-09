@@ -9,6 +9,8 @@ import BoxesPage from '@/pages/boxes/BoxesPage'
 import BoxDetailPage from '@/pages/boxes/BoxDetailPage'
 import ProductsPage from '@/pages/products/ProductsPage'
 import ProductDetailPage from '@/pages/products/ProductDetailPage'
+import TransactionsPage from '@/pages/transactions/TransactionsPage'
+import TransactionDetailPage from '@/pages/transactions/TransactionDetailPage'
 
 
 function ProtectedRoute() {
@@ -51,6 +53,8 @@ export const router = createBrowserRouter([
                     { path: '/boxes/:id', element: <BoxDetailPage /> },
                     { path: '/products', element: <ProductsPage /> },
                     { path: '/products/:id', element: <ProductDetailPage /> },
+                    { path: '/transactions', element: <TransactionsPage /> },
+                    { path: '/transactions/:id', element: <TransactionDetailPage /> },
                 ],
             },
         ],

@@ -200,6 +200,11 @@ export default function ProductsPage() {
                                 <div onClick={() => navigate(`/products/${product.id}`)} className="cursor-pointer">
                                     <h3 className="font-bold text-slate-900 dark:text-white text-lg capitalize">{product.product_type_name}</h3>
                                     <p className="text-sm text-slate-500 line-clamp-1">Donado por: {product.donor_name}</p>
+                                    {product.description && (
+                                        <p className="text-xs text-slate-400 mt-2 line-clamp-2 italic">
+                                            "{product.description}"
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-3 pt-2">
                                     <div className="flex justify-between text-xs">
