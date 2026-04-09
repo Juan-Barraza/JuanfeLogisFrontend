@@ -124,8 +124,13 @@ export default function TransactionDetailPage() {
                                         <div className="font-bold text-sm text-slate-900 dark:text-white capitalize">
                                             {item.product_name}
                                         </div>
-                                        <div className="text-xs text-slate-400 font-medium mt-0.5">
-                                            ID: {item.product_id.split('-')[0]}
+                                        <div
+                                            onClick={() => navigate(`/products/${item.product_id}`)}
+                                            className="flex flex-col cursor-pointer group/item"
+                                        >
+                                            <div className="text-xs text-slate-400 font-medium mt-0.5">
+                                                ID: {item.product_id.split('-')[0]}
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
