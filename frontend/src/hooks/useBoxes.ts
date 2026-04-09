@@ -59,6 +59,7 @@ export const useAddBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }
@@ -71,6 +72,7 @@ export const useRemoveBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }
@@ -83,6 +85,7 @@ export const useReturnBoxStock = () => {
     onSuccess: (_, { boxId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.boxes.detail(boxId) })
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all })
     },
   })
 }

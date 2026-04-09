@@ -24,6 +24,7 @@ export const useCreateProduct = () => {
         mutationFn: (data: ProductRequest) => productApi.createProduct(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 };
@@ -36,6 +37,7 @@ export const useUpdateProduct = () => {
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
             queryClient.invalidateQueries({ queryKey: queryKeys.products.detail(variables.id) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 };
@@ -46,6 +48,7 @@ export const useDeleteProduct = () => {
         mutationFn: (id: string) => productApi.deleteProduct(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
+            queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
         },
     });
 };
