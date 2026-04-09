@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { Settings2, Users, Warehouse, Tag } from 'lucide-react'
+import { Settings2, Users, Warehouse, Tag, ScanLine } from 'lucide-react'
 import DonorsTable from './components/donors/DonorsTable'
 import LocationsTable from './components/locations/LocationsTable'
 import ProductTypesTable from './components/product_types/ProductTypesTable'
+import QRScanner from './components/scanner/QRScanner'
 
 const TABS = [
     { id: 'donors', label: 'Donadores', icon: Users, color: 'text-blue-500' },
     { id: 'locations', label: 'Bodegas', icon: Warehouse, color: 'text-emerald-500' },
     { id: 'product-types', label: 'Tipos de Producto', icon: Tag, color: 'text-violet-500' },
+    { id: 'scanner', label: 'Escáner QR', icon: ScanLine, color: 'text-accent' },
 ]
 
 export default function SettingsPage() {
@@ -92,6 +94,7 @@ export default function SettingsPage() {
                     {activeTab === 'donors' && <DonorsTable />}
                     {activeTab === 'locations' && <LocationsTable />}
                     {activeTab === 'product-types' && <ProductTypesTable />}
+                    {activeTab === 'scanner' && <QRScanner />}
                 </div>
             </div>
         </div>
