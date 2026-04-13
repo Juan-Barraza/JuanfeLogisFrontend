@@ -1,73 +1,68 @@
-# React + TypeScript + Vite
+# JuanfeLogis Frontend 📦
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![JuanfeLogis](/JuanfeLogisFrontend/public/vite.svg)
 
-Currently, two official plugins are available:
+## 📋 Descripción General
+El **Frontend de JuanfeLogis** es una aplicación web moderna y progresiva diseñada para facilitar la administración y gestión del inventario físico para la fundación. Proporciona una interfaz gráfica de usuario sencilla, ágil y de rápida adopción para que los operarios y administradores puedan consultar el estado de donaciones, ubicación de cajas, así como registrar entradas y salidas de inventario en tiempo real. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 La Solución con Código QR
+Una de las funcionalidades principales y la propuesta de valor más fuerte de este sistema es **la gestión e identificación de inventario basada en Códigos QR**. 
 
-## React Compiler
+**¿Qué problema soluciona?**
+En bodegas o centros de acopio con múltiples cajas selladas, los operarios pierden información sobre qué productos hay dentro de cada caja o a qué lote de donación pertenecen. La gestión manual es lenta, propensa a errores (descuadres de inventario), y dificulta conocer la ubicación real u obtener reportes de disponibilidad.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Nuestra solución:**
+- Cada **Caja (Box)** generada en la plataforma tendrá su propio identificador único y generará un **Código QR visual**.
+- Los operarios pueden pegar este código QR en la parte externa de la caja física.
+- Desde la aplicación Frontend (versión móvil o escritorio con cámara o lector/scanner), **se puede escanear este código QR**. 
+- Al escanearlo, el sistema **redirige automáticamente** a la vista de detalles de esa caja, donde el usuario puede:
+  - Ver todos los productos exactos que hay dentro, su estado físico y precio de donación/venta.
+  - Ver el historial de transacciones (entradas y salidas) de esa caja en específico.
+  - Modificar el stock instantáneamente, haciendo un conteo rápido sin tener que teclear identificadores largos ni buscar la caja manualmente en listas.
 
-## Expanding the ESLint configuration
+## 🛠 Tecnologías Utilizadas
+La interfaz está construida enfocada no solo en rendimiento y eficiencia de red, sino también proveer una experiencia premium y moderna:
+- **React 19 + TypeScript:** Construcción de interfaces reactivas con tipado seguro.
+- **Vite:** Herramienta de compilación ultrarrápida para desarrollo y producción.
+- **Tailwind CSS v4:** Motor de estilos mediante clases de utilidad para interfaces impecables, flexibles y *responsive* (preparadas nativamente para dispositivos móviles).
+- **Zustand:** Manejo del estado global para autenticación y carrito de transacciones.
+- **TanStack React Query:** Data Fetching, sincronización de estado del servidor y caching.
+- **HTML5-QRCode:** Librería implementada para procesar y leer y descodificar los códigos QR usando la cámara del dispositivo móvil u ordenador.
+- **React Router Dom:** Manejo de rutas y navegación de páginas interactiva sin recarga (SPA).
+- **Lucide React:** Iconografía vectorial minimalista y estandarizada. 
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🏗 Estructura del Proyecto
+```plaintext
+src/
+ ├── api/        # Funciones de consumo API (Axios)
+ ├── assets/     # Imágenes, fuentes, svgs estáticos
+ ├── hooks/      # Custom hooks de React
+ ├── layouts/    # Plantillas de diseño base (Sidebar, Header, Layout General)
+ ├── lib/        # Utilidades y configuración de librerías externas (Zod, Tailwind merge)
+ ├── pages/      # Vistas principales de la aplicación por ruta
+ ├── router/     # Definición de las rutas del proyecto
+ ├── store/      # Estados globales usando Zustand
+ └── types/      # Definiciones de tipos e interfaces TypeScript (Modelos)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚙️ Instalación y Despliegue Local
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Requisitos previos
+- Node.js (v18+)
+- npm o pnpm
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Pasos
+1. Instalar las dependencias del proyecto:
+   ```bash
+   npm install
+   ```
+2. Ejecutar el servidor de desarrollo en local:
+   ```bash
+   npm run dev
+   ```
+3. (Opcional) Compilación para producción:
+   ```bash
+   npm run build
+   ```
+
+El servidor estará corriendo en `http://localhost:5173/` (o puerto similar proporcionado por Vite). Para probar la funcionalidad de escaneo QR asegúrate de habilitar permisos de la cámara en el navegador.
