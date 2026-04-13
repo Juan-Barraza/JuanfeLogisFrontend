@@ -103,7 +103,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, initialBo
         const payload: ProductRequest = {
             ...productData,
             product_type_id: Number(productData.product_type_id),
-            donation_price: Number(productData.donation_price),
+            donation_price: Number(productData.donation_price || 0),
             sale_price: Number(productData.sale_price)
         }
 
@@ -428,7 +428,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, initialBo
                                             <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Precio de Donación (COP)</label>
                                             <div className="relative">
                                                 <input
-                                                    {...register('donation_price', { required: mode === 'new' })}
+                                                    {...register('donation_price')}
                                                     type="number"
                                                     step="0.01"
                                                     className="w-full h-11 pl-8 pr-4 rounded-xl border-slate-200 dark:border-slate-700 focus:ring-accent/20"

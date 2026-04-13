@@ -147,7 +147,7 @@ export default function ProductDetailPage() {
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-baseline py-2 border-b border-slate-50 dark:border-slate-800">
                                             <span className="text-sm text-slate-500">Talla registrada</span>
-                                            <span className="font-bold text-slate-900 dark:text-white">{product.size || 'Unica'}</span>
+                                            <span className="font-bold text-slate-900 dark:text-white">{product.size || 'Sin Talla'}</span>
                                         </div>
                                         <div className="flex justify-between items-baseline py-2 border-b border-slate-50 dark:border-slate-800">
                                             <span className="text-sm text-slate-500">Categoría</span>
