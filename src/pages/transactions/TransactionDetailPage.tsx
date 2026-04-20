@@ -114,6 +114,7 @@ export default function TransactionDetailPage() {
                                 <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Producto</th>
                                 <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Caja Involucrada</th>
                                 <th className="text-center py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Unidades</th>
+                                {transaction.type != 'salida' ? "" : <th className='text-center py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest'>Destino</th>}
                                 <th className="text-right py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Valor Aplicable</th>
                             </tr>
                         </thead>
@@ -146,6 +147,13 @@ export default function TransactionDetailPage() {
                                             {item.quantity}
                                         </span>
                                     </td>
+                                    {
+                                        transaction.type != 'salida' ? ""
+                                            : <td className='py-4 px-6 text-center'>
+                                                <span className='font-black text-sm text-accent flex items-center justify-center gap-1.5'>
+                                                    {item.destination}
+                                                </span>
+                                            </td>}
                                     <td className="py-4 px-6 text-right">
                                         <div className="font-black text-sm text-accent flex items-center justify-end gap-1.5">
                                             <Banknote size={14} className="opacity-50" />

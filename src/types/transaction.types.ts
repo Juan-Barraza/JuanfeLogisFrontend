@@ -1,3 +1,5 @@
+import type { ProductDisposition } from "./product.types";
+
 export type TransactionType = 'entrada' | 'salida' | 'devolucion' | 'ajuste'
 
 export interface Transaction {
@@ -16,6 +18,7 @@ export interface TransactionItem {
     box_name: string;
     quantity: number;
     applied_price: number;
+    destination: ProductDisposition;
 }
 
 export interface TransactionDetail extends Omit<Transaction, 'item_count'> {
@@ -34,4 +37,10 @@ export interface TransactionFilters {
     type?: string;
     startDate?: string;
     endDate?: string;
+}
+
+export interface TransactionRequest {
+    product_id: string;
+    quantity: number;
+    disposition: ProductDisposition;
 }

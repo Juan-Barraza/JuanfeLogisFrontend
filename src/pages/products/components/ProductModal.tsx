@@ -22,7 +22,7 @@ interface ProductForm extends ProductRequest {
     quantity: number
 }
 
-const DISPOSITIONS: ProductDisposition[] = ['Closet Laboral', 'Bazar', 'Tienda Juanfe']
+export const DISPOSITIONS: ProductDisposition[] = ['Closet Laboral', 'Bazar', 'Tienda Juanfe']
 
 export default function ProductModal({ isOpen, onClose, productToEdit, initialBoxId, initialMode, initialSelectedProduct }: ProductModalProps) {
     const [mode, setMode] = useState<'new' | 'existing'>('new')

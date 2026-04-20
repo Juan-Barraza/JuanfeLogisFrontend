@@ -5,6 +5,8 @@ import { useAddBoxStock, useRemoveBoxStock, useReturnBoxStock, useBoxes, useBox 
 import { useProducts } from '@/hooks/useProducts'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/useDebounce'
+import { DISPOSITIONS } from '@/pages/products/components/ProductModal';
+import type { TransactionRequest } from '@/types/transaction.types'
 
 export type MovementType = 'entrada' | 'salida' | 'devolucion'
 
@@ -14,10 +16,8 @@ interface StockMovementModalProps {
     type: MovementType
 }
 
-interface StockForm {
+interface StockForm extends TransactionRequest {
     box_id: string
-    product_id: string
-    quantity: number
 }
 
 // Ids seleccionados para cruzar la información entre buscadores
@@ -142,7 +142,8 @@ export default function StockMovementModal({ isOpen, onClose, type }: StockMovem
         try {
             const payload = {
                 product_id: data.product_id,
-                quantity: Number(data.quantity)
+                quantity: Number(data.quantity),
+                destination: data.disposition,
             }
 
             if (type === 'entrada') {
@@ -389,6 +390,23 @@ export default function StockMovementModal({ isOpen, onClose, type }: StockMovem
                                 <p className="text-xs text-red-500 mt-1 font-bold">{errors.box_id.message}</p>
                             )}
                         </div>
+
+                        {type != 'salida' ? "" : (
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Disposición</label>
+                                <select
+                                    {...register('disposition')}
+                                    className="w-full h-11 px-4 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                                >
+                                    {DISPOSITIONS.map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )
+
+                        }
 
                         {/* ── CANTIDAD ──────────────────────────────── */}
                         <div className="space-y-2">
